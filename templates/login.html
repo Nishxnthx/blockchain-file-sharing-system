@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Enterprise SecureShare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="login-page">
+        <div class="login-card">
+            <div class="login-header">
+                <h3>Enterprise SecureShare</h3>
+                <p class="text-muted">Malware Reporting System Access</p>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+
+            <form action="/login" method="POST">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-control"
+                        placeholder="Enter your username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control"
+                        placeholder="Enter your password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="role" class="form-label">Account Role</label>
+                    <select id="role" name="role" class="form-select">
+                        <option value="employee">Employee</option>
+                        <option value="admin">Administrator</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-3">Sign In</button>
+            </form>
+
+        
+        </div>
+    </div>
+
+    <div id="ipsModal" style="display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    z-index:9999;">
+        <div style="background:white;
+        width:350px;
+        margin:10% auto;
+        padding:20px;
+        text-align:center;
+        border-radius:8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <h3 style="color:red; margin-bottom: 15px;">Access Blocked</h3>
+            <p style="color: #4a5568; line-height: 1.6;">
+                Security Alert: Tampered report detected.<br>
+                Your account has been temporarily blocked by the Intrusion Prevention System.<br>
+                <br>
+                <strong>Please contact an administrator.</strong>
+            </p>
+            <button onclick="document.getElementById('ipsModal').style.display='none'; window.location.href='/login'"
+                style="background-color: #e53e3e; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 15px;">
+                Acknowledge
+            </button>
+        </div>
+    </div>
+
+    {% if ips_blocked %}
+    <script>
+        document.getElementById('ipsModal').style.display = 'block';
+    </script>
+    {% endif %}
+
+</body>
+
+</html>

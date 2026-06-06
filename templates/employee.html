@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard - Enterprise SecureShare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <span style="font-size: 1.5rem;">🛡️</span> Enterprise SecureShare
+            </a>
+            <div class="navbar-nav">
+                <span class="nav-link active">Dashboard</span>
+                <a href="/logout" class="btn btn-outline btn-sm">Sign Out</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Stats Row -->
+        <div class="stats-container">
+            <div class="card">
+                <div class="card-header" style="border:none; padding-bottom:0; display:block;">
+                    <p class="stat-label">Welcome Back</p>
+                    <h3 class="card-title" style="font-size:1.5rem; margin-top:5px;">{{ user }}</h3>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" style="border:none; padding-bottom:0; display:block;">
+                    <p class="stat-label">Total Contributions</p>
+                    <div class="stat-value">{{ count }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">Secure Report Upload</h3>
+            </div>
+            <form id="uploadForm" class="mt-3">
+                <div class="form-group">
+                    <label class="form-label">Select Report File (PDF/TXT)</label>
+                    <input type="file" id="reportFile" class="form-control" required>
+                    <small class="text-muted">Files are hashed and timestamped on the blockchain.</small>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    Upload to Blockchain
+                </button>
+                <div id="uploadStatus" class="mt-3" style="font-weight: 500;"></div>
+            </form>
+        </div>
+
+        <!-- History Table -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">My Upload History</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>File Name</th>
+                            <th>Uploaded Time</th>
+                            <th>Report Hash (SHA-256)</th>
+                            <th>Verification Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in uploads %}
+                        <tr>
+                            <td>{{ item.sno }}</td>
+                            <td>{{ item.filename }}</td>
+                            <td>{{ item.time }}</td>
+                            <td title="{{ item.hash }}" style="font-family:monospace; color:var(--primary-color);">
+                                {{ item.hash[:20] }}...
+                            </td>
+                            <td>
+                                <span
+                                    class="status-badge {% if 'Verified' in item.verified %}status-verified{% elif 'Pending' in item.verified %}status-pending{% elif 'Tampered' in item.verified %}status-tampered{% elif 'Not Found' in item.verified %}status-pending{% else %}status-error{% endif %}">
+                                    {{ item.verified }}
+                                </span>
+                            </td>
+                            <td style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                                {% if 'QUARANTINED' in item.verified %}
+                                <button class="btn btn-sm btn-outline-danger" disabled
+                                    style="opacity: 0.5; cursor: not-allowed;" title="File Quarantined - Contact Admin">
+                                    Blocked
+                                </button>
+                                <a href="/highlightTampering?hash={{ item.hash }}" target="_blank"
+                                    class="btn btn-sm btn-info"
+                                    style="color: white; border-color: #17a2b8; background-color: #17a2b8;">
+                                    View Tamper Report
+                                </a>
+                                {% else %}
+                                <a href="/download/{{ item.hash }}" class="btn btn-sm btn-outline-primary"
+                                    style="text-decoration:none;">Download</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No files uploaded yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>

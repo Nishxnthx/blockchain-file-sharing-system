@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Enterprise SecureShare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <span style="font-size: 1.5rem;">🛡️</span> Enterprise SecureShare <span
+                    style="font-size:0.8em; margin-left:10px; color:#6c757d; font-weight:400;">/ Admin Console</span>
+            </a>
+            <div class="navbar-nav">
+                <span class="nav-link active">Dashboard</span>
+                <a href="/logout" class="btn btn-outline btn-sm">Sign Out</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">All Uploaded Reports</h3>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>File Name</th>
+                            <th>Uploaded By</th>
+                            <th>Time</th>
+                            <th>Hash ID (SHA-256)</th>
+                            <th>Status</th>
+                            <th style="text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in uploads %}
+                        <tr>
+                            <td>{{ item.sno }}</td>
+                            <td>{{ item.filename }}</td>
+                            <td>
+                                <span
+                                    style="background:#e9ecef; padding:2px 8px; border-radius:12px; font-size:0.85em; font-weight:600;">
+                                    {{ item.uploader }}
+                                </span>
+                            </td>
+                            <td>{{ item.time }}</td>
+                            <td title="{{ item.hash }}" style="font-family:monospace; color:var(--primary-color);">
+                                {{ item.hash[:15] }}...
+                            </td>
+                            <td>
+                                <span id="status-{{ item.sno }}"
+                                    class="status-badge {% if 'Verified' in item.verified %}status-verified{% elif 'Pending' in item.verified %}status-pending{% elif 'Tampered' in item.verified %}status-tampered{% elif 'Not Found' in item.verified %}status-pending{% else %}status-error{% endif %}">
+                                    {{ item.verified }}
+                                </span>
+                            </td>
+                            <td
+                                style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center;">
+                                <button class="btn btn-sm btn-primary verify-btn" data-hash="{{ item.hash }}"
+                                    data-id="{{ item.sno }}">
+                                    Verify Integrity
+                                </button>
+
+                                <!-- Attack Simulation Buttons -->
+                                <button class="btn btn-sm btn-dark smart-attack-btn" data-hash="{{ item.hash }}"
+                                    style="background-color: #343a40; border-color: #343a40; color: white;"
+                                    title="Tamper Document Content Separately">
+                                    📝 Smart Attack
+                                </button>
+
+                                {% if item.verified == "QUARANTINED" %}
+                                <!-- Download Disabled -->
+                                <button class="btn btn-secondary btn-sm" disabled
+                                    style="cursor: not-allowed; opacity: 0.6;">
+                                    Download Blocked
+                                </button>
+
+                                <a href="/highlightTampering?hash={{ item.hash }}" target="_blank"
+                                    class="btn btn-info btn-sm"
+                                    style="color: white; border-color: #17a2b8; background-color: #17a2b8;">
+                                    View Tamper Report
+                                </a>
+
+                                <!-- Show ONLY for Admin (Logic handled in backend/template context, assuming admin view) -->
+                                <button class="btn btn-warning btn-sm unblock-btn" data-hash="{{ item.hash }}">
+                                    Unblock
+                                </button>
+                                {% else %}
+                                <button class="btn btn-success btn-sm"
+                                    onclick="window.location.href='/download/{{ item.hash }}'">
+                                    Download
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">No reports found in the system.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>
